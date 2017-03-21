@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://unpkg.com/vue@2.2.4/dist/vue.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script>
+    var data = {a: 1};
+    var vm = new Vue({
+        el: '#app',
+        data: data
+    });
+    vm.a === data.a;//true
+    //修改vm的a的值会影响到原始值
+    vm.a = 2;
+    console.log(data.a); //=> 2
+    //反之亦然
+    data.a = 3;
+    console.log(vm.a);// => 3
+    //注意，只有被代理的属性才是响应式的。
+    //如果实例创建之后添加新的属性，是不会触发视图更新的
+    data.b = 'b';
+    console.log(vm.b);//undefined
+
+    //除了data属性，Vue还暴露了一些有用的实例属性与方法。这些方法与属性都是以$开头，以便于代理的data属性区分
+
+    console.log(vm.$data === data); //true
+    console.log(vm.$el === document.getElementById('app')); //true
+
+    vm.$watch('a', function(newVal, oldVal){
+        console.log('a改变了，新值是'+ newVal +'，旧值是'+ oldVal);
+    });
+    vm.a = 'a'; //a的值变了，就会触发上面的回调函数
+    //a改变了，新值是a，旧值是3
+
+    /**
+     * Vue实例的生命周期
+     */
+    //每一个Vue实例在被创建的之前都要经过一些列的初始化的过程
+    //例如实例需要配备数据观测，模板编译，挂载实例到DOM，然后数据变化到Dom,在这过程中，会调用一系列的生命周期的钩子函数，这就提供了给我们执行自定义逻辑的机会
+
+    //生命周期如下
+
+    /**
+     * new Vue()
+     *      ↓ ----------> beforeCreate
+     * Observe Data
+     *      ↓
+     * Init Events
+     *      ↓ ----------> created
+     * Has 'el' option? -------↓no
+     *      ↓yes            when vm.$mount(el) is called
+     *      ↓                  ↓
+     * Has 'template' option? ←↓
+     *              ↓
+     *      ←←←←←←←←←→→→→→→→→→
+     *   yes↓                ↓no
+     *      ↓                ↓
+     *Compile template      Compile el's outerHTML
+     *into render function   as template
+     *      ↓                 ↓
+     *      →→→→→→→→→→←←←←←←←←←
+     *                ↓ --------------------> beforeMount
+     *       Create vm.$el and replace 'el' with it
+     *                ↓ --------------------> mounted
+     *                ↓
+     *                ↓             ↑→→→→→→→→→→→ -------------> beforeUpdate
+     *                ↓             ↑           ↓
+     *             Mounted →→→→→→→→→↑         Virtual DOM re-render and patch
+     *                ↓             ↑           ↓
+     *                ↓             ←←←←←←←←←←←←↓ --------------> updated
+     *                ↓----------------------> beforeDestroy
+     *                ↓
+     *    Teardown watchers, child components and event listeners
+     *                ↓
+     *               Destriyed ----------------> destroyed
+     */
+</script>
+</body>
+</html>
