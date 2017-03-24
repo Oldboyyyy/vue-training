@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板语法</title>
+    <script src="https://unpkg.com/vue@2.2.4/dist/vue.js"></script>
+</head>
+<style>
+   
+</style>
+<body>
+<div id="app">
+   <p>{{msg}}</p>
+   <p>computed:{{reverseMsg}}</p>
+   <p>methods:{{reverseMsgfn()}}</p>
+   <p>now:{{now}}</p>
+   <label for="">firstName:<input type="text" v-model='firstName'></label>
+   <label for="">lastName:<input type="text" v-model='lastName'></label>
+    <p>fullName:{{fullName}}</p>
+</div>
+<script>
+   var vm = new Vue({
+       el: '#app',
+       data: {
+           msg: 'hello Vue!'
+       },
+       computed: {
+           reverseMsg: function(){
+                return this.msg.split(' ').reverse().join(' ');
+           },
+           now: function(){
+               return Date.now();
+           }
+       },
+       methods: {
+           reverseMsgfn: function(){
+               return this.msg.split(' ').reverse().join(' ');
+           }
+       }
+   });
+    vm.msg = 'hello world!';//此时的reverseMsg=‘world! hello’
+    //我们先声明一个计算属性reverseMsg。我们提供的函数将作为vm.reverseMsg的getter；
+    //vm.reverseMsg的值是取决于vm.message的值
+    //我们可以像绑定普通属性一样在模板中绑定计算属性。Vue知道vm.reverseMsg的值是依赖于vm.msg，
+    //因此当vm.msg发生改变时，所有依赖于vm.reverseMsg的绑定也会更新。
+    //我们已经以申明的方式创建了这种依赖关系： 计算属性的getter是没有副作用的，这是他易于测试和推理
+    
+    //我们可以将同一个函数定义为一个method而不是一个计算属性
+    //对于最终结果，这两个方法效果是相同的。不同的是计算属性是基于他们的依赖进行缓存的
+    //计算属性只有在他的相关依赖发生改变时才会重新求值
+    //这就意味着，在msg值没有发生改变，reverseMsg的值就不会发生改变，这期间多次访问reverseMsg属性都是之前的的计算结果，而是不值再次进行执行函数
+    
+    //如果我们不需要缓存的话，我们就可以用method代替
+    
+    //Vue提供了一种方式来观察和响应Vue实例上的数据变动：watch属性
+    
+    
+</script>
+</body>
+</html>
