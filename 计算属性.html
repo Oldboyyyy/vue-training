@@ -18,11 +18,23 @@
    <label for="">lastName:<input type="text" v-model='lastName'></label>
     <p>fullName:{{fullName}}</p>
 </div>
+<div id="app2">
+    <label for="">firstName:<input type="text" v-model='firstName'></label>
+    <label for="">lastName:<input type="text" v-model='lastName'></label>
+    <p>fullName:{{fullName}}</p>
+</div>
+<div id="app3">
+    你的问题是：<input type="text" v-model="question">
+    答案是：<p v-text="answer"></p>
+</div>
 <script>
    var vm = new Vue({
        el: '#app',
        data: {
-           msg: 'hello Vue!'
+           msg: 'hello Vue!',
+           firstName: 'first',
+           lastName: 'last',
+           fullName: 'first last'
        },
        computed: {
            reverseMsg: function(){
@@ -35,6 +47,14 @@
        methods: {
            reverseMsgfn: function(){
                return this.msg.split(' ').reverse().join(' ');
+           }
+       },
+       watch: {
+           firstName: function(val){
+               this.fullName = val + ' ' + this.lastName;
+           },
+           lastName: function(val){
+               this.fullName = this.firstName + ' ' + val;
            }
        }
    });
@@ -53,8 +73,63 @@
     //如果我们不需要缓存的话，我们就可以用method代替
     
     //Vue提供了一种方式来观察和响应Vue实例上的数据变动：watch属性
-    
-    
+
+    var vm2 = new Vue({
+        el: '#app2',
+        data: {
+            firstName: 'first',
+            lastName: 'last'
+        },
+        computed: {
+            fullName : {
+                get: function(){
+                    return this.firstName +' '+ this.lastName;
+                },
+                set: function(newVal){
+                    var names = newVal.split(' ');
+                    this.firstName =  names[0];
+                    this.lastName = names[names.length - 1];
+                }
+            }
+        }
+    });
+    //computed也可以实现相同的效果，而且代码更加简洁易懂
+    //计算属性，一般默认只有getter，不过我们也可以提供一个setter,我们就可以通改变fullName值，也可以动态改变firstName和lastName
+    // 虽然计算属性在大多数情况下是可以替代watch的，但是在执行异步操作或者更大开销操作的时候watch更适合
+
+</script>
+<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
+<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
+<script>
+    new Vue({
+        el: '#app3',
+        data: {
+            question: '',
+            answer: '你不提问我没法回答'
+        },
+        watch: {
+            question: function(){
+                this.answer = '问题通常包含一个问号';
+                this.getAnswer();
+            }
+        },
+        methods: {
+            getAnswer: _.debounce(function () {
+                var _this = this;
+                if(_this.question.indexOf('?') === -1){
+                    return _this.answer = '问题通常包含一个问号';
+                }
+                _this.answer = '搜索中...';
+                axios.get('https://yesno.wtf/api').then(function(response){
+                    _this.answer = _.capitalize(response.data.answer);
+                }).catch(function(err){
+                    _this.answer = 'err'
+                })
+            },500)
+        }
+
+    });
+    //会用watch选项允许我们执行异步操作，限制我们操作的频率并在得到结果前设置中间状态，这是计算属性无法做到的
 </script>
 </body>
 </html>
