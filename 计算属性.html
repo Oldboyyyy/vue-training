@@ -2,134 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>模板语法</title>
+    <title>Class与Style绑定</title>
     <script src="https://unpkg.com/vue@2.2.4/dist/vue.js"></script>
 </head>
 <style>
-   
+   .active{
+       color: #fff;
+       background-color: #ffe52c;
+   }
+    .default{
+       font-family: Arial;
+        font-size: 20px;
+    }
+    .success{
+        color: #27ff50;
+        padding: 5px;
+    }
 </style>
 <body>
 <div id="app">
-   <p>{{msg}}</p>
-   <p>computed:{{reverseMsg}}</p>
-   <p>methods:{{reverseMsgfn()}}</p>
-   <p>now:{{now}}</p>
-   <label for="">firstName:<input type="text" v-model='firstName'></label>
-   <label for="">lastName:<input type="text" v-model='lastName'></label>
-    <p>fullName:{{fullName}}</p>
-</div>
-<div id="app2">
-    <label for="">firstName:<input type="text" v-model='firstName'></label>
-    <label for="">lastName:<input type="text" v-model='lastName'></label>
-    <p>fullName:{{fullName}}</p>
-</div>
-<div id="app3">
-    你的问题是：<input type="text" v-model="question">
-    答案是：<p v-text="answer"></p>
+    <span :class="{active: isActive}"> hello Vue</span>
+    <!--span 是否有active样式，取决于isActive是否是真值-->
+    <span :class="{active: isActive, success: isSuccess}" class="default">hello world</span>
+    <!--v-bind绑定的class会与普通的class共存-->
+    <span :class="cssObj">xxxxxx</span>
+    <!--也可以绑定数据里面的一个对象，效果跟上面也是一样的-->
+    <span :class="computedCss">fffffffffffff</span>
+    <!--也可以是计算属性返回的对象-->
+    <span :class="[active, success]">sssssss</span>
+    <!--可以传递一个数组，当做class列表-->
+    <span :class="[isActive ? active : '', success]">呵呵呵呵呵呵或或或或或或或或或或或</span>
+    <!--根据条件切换样式-->
+    <span :class="[{active: isActive}, success]">sdssdasd</span>
+    <!--当多个样式需要条件切换时这样就很繁琐了，就可以在数组里面使用对象的语法-->
+    <br>
+    <!--绑定内联样式-->
+    <span :style="{color: color, fontSize: fontSize + 'px', 'padding-left': fontSize + 'px'}">asdasdasd</span>
+    <!--:style=""的对象语法，跟原生的内联样式写法很像，css属性名可以用驼峰写法，也可以用‘-’链接，不过要加引号-->
+    <span :style="styleObj">adasdasdasd</span>
+    <!--同样也可以直接赋给一个对象，这样看起来更加整洁，同样对象方式常常结合计算属性使用-->
+    <span :style="[styleObj]">tttttttkkkkk</span>
+    <!--将多个样式对象作用到一个元素上-->
+    <span :style="[styleObj, transform]">000000000000</span>
+    <span style="transform : rotate(90deg) scale(1.5); position: absolute;display: flex;">000000000000</span>
+
 </div>
 <script>
-   var vm = new Vue({
-       el: '#app',
-       data: {
-           msg: 'hello Vue!',
-           firstName: 'first',
-           lastName: 'last',
-           fullName: 'first last'
-       },
-       computed: {
-           reverseMsg: function(){
-                return this.msg.split(' ').reverse().join(' ');
-           },
-           now: function(){
-               return Date.now();
-           }
-       },
-       methods: {
-           reverseMsgfn: function(){
-               return this.msg.split(' ').reverse().join(' ');
-           }
-       },
-       watch: {
-           firstName: function(val){
-               this.fullName = val + ' ' + this.lastName;
-           },
-           lastName: function(val){
-               this.fullName = this.firstName + ' ' + val;
-           }
-       }
-   });
-    vm.msg = 'hello world!';//此时的reverseMsg=‘world! hello’
-    //我们先声明一个计算属性reverseMsg。我们提供的函数将作为vm.reverseMsg的getter；
-    //vm.reverseMsg的值是取决于vm.message的值
-    //我们可以像绑定普通属性一样在模板中绑定计算属性。Vue知道vm.reverseMsg的值是依赖于vm.msg，
-    //因此当vm.msg发生改变时，所有依赖于vm.reverseMsg的绑定也会更新。
-    //我们已经以申明的方式创建了这种依赖关系： 计算属性的getter是没有副作用的，这是他易于测试和推理
-    
-    //我们可以将同一个函数定义为一个method而不是一个计算属性
-    //对于最终结果，这两个方法效果是相同的。不同的是计算属性是基于他们的依赖进行缓存的
-    //计算属性只有在他的相关依赖发生改变时才会重新求值
-    //这就意味着，在msg值没有发生改变，reverseMsg的值就不会发生改变，这期间多次访问reverseMsg属性都是之前的的计算结果，而是不值再次进行执行函数
-    
-    //如果我们不需要缓存的话，我们就可以用method代替
-    
-    //Vue提供了一种方式来观察和响应Vue实例上的数据变动：watch属性
-
-    var vm2 = new Vue({
-        el: '#app2',
+    //数据绑定是常见的需求，是操作元素的class和内联样式。因为他们都是属性，因此可以用v-bind来进行绑定，vuejs还专门增强了他，表达式结果类型不仅仅可以是字符串，还可以是对象或数组
+    var vm = new Vue({
+        el: '#app',
         data: {
-            firstName: 'first',
-            lastName: 'last'
+            isActive : true,
+            isSuccess: true,
+            cssObj: {
+                active : true,
+                success: true
+            },
+            success: 'success',
+            active: 'active',
+            color: 'red',
+            fontSize: 35,
+            styleObj: {
+                color: 'blue',
+                'font-size': '35px',
+                paddingLeft: '35px'
+            },
+            transform: {
+                transform : 'rotate(90deg) scale(1.5)',
+                position: 'absolute',
+                display: 'flex'
+            }
         },
         computed: {
-            fullName : {
-                get: function(){
-                    return this.firstName +' '+ this.lastName;
-                },
-                set: function(newVal){
-                    var names = newVal.split(' ');
-                    this.firstName =  names[0];
-                    this.lastName = names[names.length - 1];
-                }
+            computedCss: function(){
+               return{
+                   active : this.isActive,
+                   success: this.isSuccess
+               }
             }
         }
     });
-    //computed也可以实现相同的效果，而且代码更加简洁易懂
-    //计算属性，一般默认只有getter，不过我们也可以提供一个setter,我们就可以通改变fullName值，也可以动态改变firstName和lastName
-    // 虽然计算属性在大多数情况下是可以替代watch的，但是在执行异步操作或者更大开销操作的时候watch更适合
-
-</script>
-<script src="https://unpkg.com/axios@0.12.0/dist/axios.min.js"></script>
-<script src="https://unpkg.com/lodash@4.13.1/lodash.min.js"></script>
-<script>
-    new Vue({
-        el: '#app3',
-        data: {
-            question: '',
-            answer: '你不提问我没法回答'
-        },
-        watch: {
-            question: function(){
-                this.answer = '问题通常包含一个问号';
-                this.getAnswer();
-            }
-        },
-        methods: {
-            getAnswer: _.debounce(function () {
-                var _this = this;
-                if(_this.question.indexOf('?') === -1){
-                    return _this.answer = '问题通常包含一个问号';
-                }
-                _this.answer = '搜索中...';
-                axios.get('https://yesno.wtf/api').then(function(response){
-                    _this.answer = _.capitalize(response.data.answer);
-                }).catch(function(err){
-                    _this.answer = 'err'
-                })
-            },500)
-        }
-
-    });
-    //会用watch选项允许我们执行异步操作，限制我们操作的频率并在得到结果前设置中间状态，这是计算属性无法做到的
 </script>
 </body>
 </html>
