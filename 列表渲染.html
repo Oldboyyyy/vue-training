@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>列表渲染</title>
+    <script src="https://unpkg.com/vue@2.2.4/dist/vue.js"></script>
+</head>
+<style>
+</style>
+<body>
+<div id="app">
+   <div>
+       <ul>
+           <li v-for="item in items" v-text="item.text"></li>
+       </ul>
+       <!--v-for 还支持可选的第二个参数为当前项的索引-->
+       <ul>
+           <li v-for="(val,index) in items" v-text="(index+1) + '. ' + val.text"></li>
+       </ul>
+       <ul>
+           <template v-for="(val, index) in items">
+               <li>{{index}}</li>
+               <li>{{val.text}}</li>
+           </template>
+       </ul>
+       <!--利用template标签同时渲染多个标签-->
+       <span v-for="key in obj">{{key}}</span>
+       <p v-for="(key, value) in obj">{{key}}: {{value}}</p>
+       <p v-for="(key, value, index) in obj">{{key}}: {{value}}: {{index}}</p>
+       <!--在便利对象时，是按照Object.keys()的结果遍历，但是不能保证跟js引擎一致-->
+       <button v-for="i in 10">{{i}}</button>
+       <!--整数迭代-->
+       <my-ul :items="items"></my-ul>
+       <!--当 Vue.js 用 v-for 正在更新已渲染过的元素列表时，它默认用 “就地复用” 策略。-->
+       奇数：<span v-for="i in odd">{{i}}</span>
+       偶数：<span v-for="i in even(number)">{{i}}</span>
+   </div>
+</div>
+<template id="myul">
+    <ul>
+        <li v-for="i in items">{{i.text}}</li>
+    </ul>
+</template>
+<script>
+    Vue.component('my-ul',{
+        template: '#myul',
+        props: ['items']
+    });
+    var vm = new Vue({
+        el: '#app',
+        data: {
+           items: [
+               {text: 'item1'},
+               {text: 'item2'},
+               {text: 'item3'}
+           ],
+            obj: {
+                v: 'V',
+                u: 'U',
+                e: 'E'
+            },
+            number: [1,2,3,4,5,6]
+        },
+        computed: {
+            odd: function(){
+                return this.number.filter(function(i){
+                    return i%2 === 1;
+                })
+            }
+        },
+        methods: {
+            even: function(arr){
+                return arr.filter(function(i){
+                    return i%2 === 0;
+                })
+            }
+        }
+
+    });
+</script>
+</body>
+</html>
